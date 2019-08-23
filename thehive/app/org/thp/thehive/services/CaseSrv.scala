@@ -2,11 +2,6 @@ package org.thp.thehive.services
 
 import java.util.{Date, List => JList, Set => JSet}
 
-import scala.collection.JavaConverters._
-import scala.util.{Success, Try}
-
-import play.api.libs.json.{JsNull, JsObject, Json}
-
 import gremlin.scala._
 import javax.inject.{Inject, Singleton}
 import org.apache.tinkerpop.gremlin.process.traversal.{Order, Path, P => JP}
@@ -17,6 +12,10 @@ import org.thp.scalligraph.query.PropertyUpdater
 import org.thp.scalligraph.services._
 import org.thp.scalligraph.{EntitySteps, InternalError, RichJMap, RichOptionTry, RichSeq}
 import org.thp.thehive.models._
+import play.api.libs.json.{JsNull, JsObject, Json}
+
+import scala.collection.JavaConverters._
+import scala.util.{Success, Try}
 
 @Singleton
 class CaseSrv @Inject()(
@@ -331,6 +330,8 @@ class CaseSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) 
     raw.filter(_.inTo[ShareCase].inTo[OrganisationShare].inTo[RoleOrganisation].inTo[UserRole].has(Key("login") of authContext.userId))
   )
 
+  override def newInstance(raw: GremlinScala[Vertex]): CaseSteps = new CaseSteps(raw)
+
   def can(permission: Permission)(implicit authContext: AuthContext): CaseSteps =
     newInstance(
       raw.filter(
@@ -343,8 +344,6 @@ class CaseSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) 
           .has(Key("login") of authContext.userId)
       )
     )
-
-  override def newInstance(raw: GremlinScala[Vertex]): CaseSteps = new CaseSteps(raw)
 
   def getLast: CaseSteps =
     newInstance(raw.order(By(Key[Int]("number"), Order.desc)))

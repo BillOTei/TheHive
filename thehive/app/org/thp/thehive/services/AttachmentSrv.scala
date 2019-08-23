@@ -98,4 +98,9 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
 @EntitySteps[Attachment]
 class AttachmentSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) extends BaseVertexSteps[Attachment, AttachmentSteps](raw) {
   override def newInstance(raw: GremlinScala[Vertex]): AttachmentSteps = new AttachmentSteps(raw)
+
+  override def remove(): Unit = {
+    raw.drop().iterate()
+    ()
+  }
 }

@@ -114,4 +114,12 @@ class ReportTemplateSteps(raw: GremlinScala[Vertex])(implicit db: Database, grap
   def getByName(workerId: String): ReportTemplateSteps = new ReportTemplateSteps(raw.has(Key("workerId") of workerId))
 
   override def newInstance(raw: GremlinScala[Vertex]): ReportTemplateSteps = new ReportTemplateSteps(raw)
+
+  /**
+    * Removes entities from database
+    */
+  override def remove(): Unit = {
+    raw.drop().iterate()
+    ()
+  }
 }

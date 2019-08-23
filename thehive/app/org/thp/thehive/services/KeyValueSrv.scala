@@ -13,4 +13,9 @@ class KeyValueSrv @Inject()()(implicit db: Database) extends VertexSrv[KeyValue,
 
 class KeyValueSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) extends BaseVertexSteps[KeyValue, KeyValueSteps](raw) {
   override def newInstance(raw: GremlinScala[Vertex]): KeyValueSteps = new KeyValueSteps(raw)
+
+  override def remove(): Unit = {
+    raw.drop().iterate()
+    ()
+  }
 }

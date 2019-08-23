@@ -1,7 +1,5 @@
 package org.thp.thehive.services
 
-import scala.util.Try
-
 import gremlin.scala._
 import javax.inject.{Inject, Singleton}
 import org.thp.scalligraph.EntitySteps
@@ -9,6 +7,8 @@ import org.thp.scalligraph.auth.AuthContext
 import org.thp.scalligraph.models._
 import org.thp.scalligraph.services._
 import org.thp.thehive.models._
+
+import scala.util.Try
 
 @Singleton
 class ShareSrv @Inject()(implicit val db: Database) extends VertexSrv[Share, ShareSteps] {
@@ -47,4 +47,9 @@ class ShareSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph)
   def observables = new ObservableSteps(raw.outTo[ShareObservable])
 
   def `case`: CaseSteps = new CaseSteps(raw.outTo[ShareCase])
+
+  override def remove(): Unit = {
+    raw.drop().iterate()
+    ()
+  }
 }

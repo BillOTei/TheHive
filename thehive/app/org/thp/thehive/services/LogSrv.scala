@@ -82,6 +82,8 @@ class LogSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) e
       )
     )
 
+  override def newInstance(raw: GremlinScala[Vertex]): LogSteps = new LogSteps(raw)
+
   def attachments = new AttachmentSteps(raw.outTo[LogAttachment])
 
   def `case` = new CaseSteps(
@@ -105,7 +107,10 @@ class LogSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) e
       )
     )
 
-  override def newInstance(raw: GremlinScala[Vertex]): LogSteps = new LogSteps(raw)
+  override def remove(): Unit = {
+    raw.drop().iterate()
+    ()
+  }
 
   def richLog: ScalarSteps[RichLog] =
     ScalarSteps(

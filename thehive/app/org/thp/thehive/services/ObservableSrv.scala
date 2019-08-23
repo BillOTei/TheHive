@@ -91,15 +91,6 @@ class ObservableSrv @Inject()(
     } yield createdTags
   }
 
-  private def addExtensions(observable: Observable with Entity, extensions: Seq[KeyValue])(
-      implicit graph: Graph,
-      authContext: AuthContext
-  ): Try[Seq[KeyValue with Entity]] =
-    for {
-      keyValues <- extensions.toTry(keyValueSrv.create)
-      _         <- keyValues.toTry(kv => observableKeyValueSrv.create(ObservableKeyValue(), observable, kv))
-    } yield keyValues
-
   def updateTags(observable: Observable with Entity, tags: Set[String])(implicit graph: Graph, authContext: AuthContext): Try[Unit] = {
     val (tagsToAdd, tagsToRemove) = get(observable)
       .tags
@@ -149,6 +140,15 @@ class ObservableSrv @Inject()(
           _ <- auditSrv.observable.update(o, c, updatedFields)
         } yield ()
     }
+
+  private def addExtensions(observable: Observable with Entity, extensions: Seq[KeyValue])(
+      implicit graph: Graph,
+      authContext: AuthContext
+  ): Try[Seq[KeyValue with Entity]] =
+    for {
+      keyValues <- extensions.toTry(keyValueSrv.create)
+      _         <- keyValues.toTry(kv => observableKeyValueSrv.create(ObservableKeyValue(), observable, kv))
+    } yield keyValues
 }
 
 class ObservableSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) extends BaseVertexSteps[Observable, ObservableSteps](raw) {
