@@ -40,7 +40,7 @@ angular.module('thehive', [
     })
     .config(function($compileProvider) {
         'use strict';
-        $compileProvider.debugInfoEnabled(false);        
+        $compileProvider.debugInfoEnabled(false);
     })
     .config(function($stateProvider, $urlRouterProvider) {
         'use strict';
@@ -300,6 +300,11 @@ angular.module('thehive', [
             .state('app.case.links', {
                 url: '/links',
                 templateUrl: 'views/partials/case/case.links.html',
+                controller: 'CaseLinksCtrl'
+            })
+            .state('app.resumable', {
+                url: '/resumable',
+                templateUrl: 'views/partials/index-resumable.html',
                 controller: 'CaseLinksCtrl'
             })
             .state('app.case.alerts', {
