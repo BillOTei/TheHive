@@ -31,7 +31,8 @@ angular.module('thehive', [
     'theHiveControllers',
     'theHiveServices',
     'theHiveFilters',
-    'theHiveDirectives'
+    'theHiveDirectives',
+    'flow'
     ])
     .config(function($resourceProvider) {
         'use strict';
