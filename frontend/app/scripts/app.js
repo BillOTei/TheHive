@@ -303,9 +303,9 @@ angular.module('thehive', [
                 controller: 'CaseLinksCtrl'
             })
             .state('app.resumable', {
-                url: '/resumable',
+                url: 'resumable',
                 templateUrl: 'views/partials/index-resumable.html',
-                controller: 'CaseLinksCtrl'
+                controller: 'ResumableCtrl'
             })
             .state('app.case.alerts', {
                 url: '/alerts',
