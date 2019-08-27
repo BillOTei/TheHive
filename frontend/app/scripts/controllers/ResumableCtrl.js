@@ -6,9 +6,11 @@
 
     angular
         .module("theHiveControllers")
-        .controller("ResumableCtrl", function($rootScope, $scope) {
-            $scope.fileAdded = function($file, $event, $flow) {
-                console.log($file);
+        .controller("ResumableCtrl", function($rootScope, $scope, UtilsSrv) {
+            $scope.flowInitOptions = {
+                target: '/api/upload-chunks',
+                generateUniqueIdentifier: UtilsSrv.uuidv4,
+                chunkSize: 1024
             };
         });
 })();
