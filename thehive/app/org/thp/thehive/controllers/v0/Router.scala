@@ -25,10 +25,14 @@ class Router @Inject()(
     attachmentCtrl: AttachmentCtrl,
     describeCtrl: DescribeCtrl,
     configCtrl: ConfigCtrl,
-    queryExecutor: TheHiveQueryExecutor
+    queryExecutor: TheHiveQueryExecutor,
+    assetCtrl: AssetCtrl
 ) extends SimpleRouter {
 
   override def routes: Routes = {
+
+    case GET(p"/upload-chunks")  => assetCtrl.getChunk
+    case POST(p"/upload-chunks") => assetCtrl.uploadChunk
 
     case GET(p"/status") => statusCtrl.get
     case GET(p"/health") => statusCtrl.health
