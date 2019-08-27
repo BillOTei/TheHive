@@ -47,8 +47,7 @@ class AssetCtrl @Inject()(
                 logger.warn(s"Chunk existing! Make sure it is the case $attachment $inputChunkedAsset")
 
                 Results.Ok
-              }
-              else Results.PartialContent
+              } else Results.PartialContent
             }
         )
       }
@@ -88,5 +87,6 @@ class AssetCtrl @Inject()(
           }
           Results.Created(Json.toJson(toOutputChunkAsset(updatedAttachment)))
         }
+
       }
 }
