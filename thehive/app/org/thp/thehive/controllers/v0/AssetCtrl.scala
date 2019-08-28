@@ -1,9 +1,14 @@
 package org.thp.thehive.controllers.v0
 
+import java.nio.file.Files
+
+import gremlin.scala.{Key, P}
 import javax.inject.{Inject, Singleton}
 import org.thp.scalligraph.controllers.{EntryPoint, FFile, FieldsParser}
 import org.thp.scalligraph.models.Database
 import org.thp.thehive.dto.v0.InputChunkedAsset
+import org.thp.thehive.services.AttachmentSrv
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Results}
 
 import scala.util.Success
@@ -11,15 +16,18 @@ import scala.util.Success
 @Singleton
 class AssetCtrl @Inject()(
     entryPoint: EntryPoint,
-    implicit val db: Database
+    implicit val db: Database,
+    attachmentSrv: AttachmentSrv
 ) {
+
+  import AttachmentConversion._
 
   def getChunk: Action[AnyContent] =
     entryPoint("get asset chunk")
       .auth { implicit request =>
         //200, 201, 202: The chunk was accepted and correct. No need to re-upload.
         //404, 415. 500, 501: The file for which the chunk was uploaded is not supported, cancel the entire upload.
-        //Anything else: Something went wrong, but try reuploading the file.
+        //Anything else: Something went wrong, but try re-uploading the file.
         Success(Results.NoContent)
       }
 
@@ -29,8 +37,31 @@ class AssetCtrl @Inject()(
       .extract("data", FieldsParser.file.on("file"))
       .auth { implicit request =>
         val inputChunkedAsset: InputChunkedAsset = request.body("chunk")
-        val dataChunk: FFile = request.body("data")
+        val dataChunk: FFile                     = request.body("data")
 
-        Success(Results.Ok("lol"))
+        for {
+          attachment <- db.tryTransaction(
+            implicit graph =>
+              attachmentSrv
+                .initSteps
+                .has(Key("attachmentId"), P.eq(inputChunkedAsset.flowIdentifier))
+                .getOrFail()
+                .orElse(attachmentSrv.create(inputChunkedAsset))
+          )
+          _ <- db.tryTransaction(
+            implicit graph => attachmentSrv.createChunk(attachment, (inputChunkedAsset.flowChunkNumber, Files.readAllBytes(dataChunk.filepath)))
+          )
+          updatedAttachment <- db.tryTransaction(
+            implicit graph =>
+              attachmentSrv
+                .get(attachment)
+                .update("remainingChunks" -> attachment.remainingChunks.map(_ - 1).orElse(Some(inputChunkedAsset.flowTotalChunks - 1)))
+          )
+        } yield {
+          updatedAttachment.remainingChunks.foreach { i =>
+            if (i <= 0) ??? // todo upload finished
+          }
+          Results.Created(Json.toJson(toOutputChunkAsset(updatedAttachment)))
+        }
       }
 }

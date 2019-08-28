@@ -1,8 +1,10 @@
 package org.thp.thehive.models
 
 import org.thp.scalligraph.VertexEntity
+import org.thp.scalligraph.models.{DefineIndex, IndexType}
 import org.thp.scalligraph.utils.Hash
 
+@DefineIndex(IndexType.unique, "attachmentId")
 @VertexEntity
 case class Attachment(
     name: String,
@@ -10,6 +12,6 @@ case class Attachment(
     contentType: String,
     hashes: Seq[Hash],
     attachmentId: String,
-    chunkRelativePath: Option[String] = None,
-    chunkSize: Option[Int] = None
+    remainingChunks: Option[Int] = None,
+    totalChunks: Option[Int] = None
 )

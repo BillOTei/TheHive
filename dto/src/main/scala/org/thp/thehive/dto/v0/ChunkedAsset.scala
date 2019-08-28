@@ -16,3 +16,9 @@ case class InputChunkedAsset(
 object InputChunkedAsset {
   implicit val format: OFormat[InputChunkedAsset] = Json.format[InputChunkedAsset]
 }
+
+case class OutputChunkedAsset(flowIdentifier: String, flowFilename: String, flowTotalChunks: Int, flowRemainingChunks: Int)
+
+object OutputChunkedAsset {
+  implicit val format: OFormat[OutputChunkedAsset] = Json.format[OutputChunkedAsset]
+}

@@ -70,6 +70,8 @@ module.exports = function(config) {
       'bower_components/file-saver/FileSaver.js',
       'bower_components/js-url/url.js',
       'bower_components/bootstrap-sass/assets/javascripts/bootstrap.js',
+      'bower_components/flow.js/dist/flow.js',
+      'bower_components/ng-flow/dist/ng-flow.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "bower_components/cryptojslib/components/core-min.js",

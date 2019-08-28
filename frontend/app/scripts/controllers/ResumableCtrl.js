@@ -10,7 +10,8 @@
             $scope.flowInitOptions = {
                 target: '/api/upload-chunks',
                 generateUniqueIdentifier: UtilsSrv.uuidv4,
-                chunkSize: 1024
+                chunkSize: 1024,
+                simultaneousUploads: 1
             };
         });
 })();
