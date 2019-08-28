@@ -32,8 +32,7 @@ angular.module('thehive', [
     'theHiveServices',
     'theHiveFilters',
     'theHiveDirectives',
-    'flow',
-    'uuid'
+    'flow'
     ])
     .config(function($resourceProvider) {
         'use strict';
