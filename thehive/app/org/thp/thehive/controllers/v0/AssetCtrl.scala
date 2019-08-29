@@ -50,7 +50,6 @@ class AssetCtrl @Inject()(
               } else Results.PartialContent
             }
         )
-
       }
 
   def uploadChunk: Action[AnyContent] =
