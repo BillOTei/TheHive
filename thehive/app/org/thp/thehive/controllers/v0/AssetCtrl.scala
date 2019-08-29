@@ -27,11 +27,30 @@ class AssetCtrl @Inject()(
 
   def getChunk: Action[AnyContent] =
     entryPoint("get asset chunk")
+      .extract("chunk", FieldsParser[InputChunkedAsset])
       .auth { implicit request =>
         //200, 201, 202: The chunk was accepted and correct. No need to re-upload.
         //404, 415. 500, 501: The file for which the chunk was uploaded is not supported, cancel the entire upload.
         //Anything else: Something went wrong, but try re-uploading the file.
-        Success(Results.NoContent)
+        val inputChunkedAsset: InputChunkedAsset = request.body("chunk")
+
+        Success(
+          db.roTransaction(
+              implicit graph =>
+                attachmentSrv
+                  .initSteps
+                  .has(Key("attachmentId"), P.eq(inputChunkedAsset.flowIdentifier))
+                  .headOption()
+            )
+            .fold(Results.PreconditionFailed) { attachment =>
+              if (attachmentSrv.chunkExists(attachment, inputChunkedAsset.flowChunkNumber)) {
+                logger.warn(s"Chunk existing! Make sure it is the case $attachment $inputChunkedAsset")
+
+                Results.Ok
+              }
+              else Results.PartialContent
+            }
+        )
       }
 
   def uploadChunk: Action[AnyContent] =

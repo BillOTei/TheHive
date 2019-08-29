@@ -64,6 +64,8 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
     storageSrv.saveBinary(id, data)
   }
 
+  def chunkExists(attachment: Attachment with Entity, pos: Int): Boolean = storageSrv.exists(chunkId(attachment, pos))
+
   def source(attachment: Attachment with Entity)(implicit graph: Graph): Source[ByteString, Future[IOResult]] =
     StreamConverters.fromInputStream(() => stream(attachment))
 
@@ -90,7 +92,7 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
     l.reduceLeft(_ ++ _)
   }
 
-  def chunkId(attachment: Attachment with Entity, position: Int) = s"${attachment._id}_$position"
+  def chunkId(attachment: Attachment with Entity, position: Int) = s"${attachment.attachmentId}_$position"
 }
 
 @EntitySteps[Attachment]
