@@ -61,7 +61,6 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
   )(implicit graph: Graph): Try[Unit] = {
     val (pos, data) = chunk
     val id          = chunkId(attachment, pos)
-
     storageSrv.saveBinary(id, data)
   }
 
