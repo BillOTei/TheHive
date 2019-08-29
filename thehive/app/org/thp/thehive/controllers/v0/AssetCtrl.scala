@@ -8,6 +8,7 @@ import org.thp.scalligraph.controllers.{EntryPoint, FFile, FieldsParser}
 import org.thp.scalligraph.models.Database
 import org.thp.thehive.dto.v0.InputChunkedAsset
 import org.thp.thehive.services.AttachmentSrv
+import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Results}
 
@@ -21,6 +22,8 @@ class AssetCtrl @Inject()(
 ) {
 
   import AttachmentConversion._
+
+  lazy val logger = Logger(s"${getClass.getName}")
 
   def getChunk: Action[AnyContent] =
     entryPoint("get asset chunk")
@@ -59,7 +62,10 @@ class AssetCtrl @Inject()(
           )
         } yield {
           updatedAttachment.remainingChunks.foreach { i =>
-            if (i <= 0) ??? // todo upload finished
+            if (i <= 0)
+              logger.info(
+                s"All Attachment chunks for ${updatedAttachment.remainingChunks} ${updatedAttachment.name} ${updatedAttachment._id} were created"
+              )
           }
           Results.Created(Json.toJson(toOutputChunkAsset(updatedAttachment)))
         }

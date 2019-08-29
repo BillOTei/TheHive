@@ -12,7 +12,7 @@ import org.thp.scalligraph.EntitySteps
 import org.thp.scalligraph.auth.AuthContext
 import org.thp.scalligraph.controllers.FFile
 import org.thp.scalligraph.models.{BaseVertexSteps, Database, Entity}
-import org.thp.scalligraph.services.{StorageSrv, VertexSrv}
+import org.thp.scalligraph.services.{StorageSrv, StreamUtils, VertexSrv}
 import org.thp.scalligraph.utils.Hasher
 import org.thp.thehive.models.Attachment
 import play.api.{Configuration, Logger}
@@ -22,7 +22,8 @@ import scala.util.Try
 
 @Singleton
 class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageSrv)(implicit db: Database)
-    extends VertexSrv[Attachment, AttachmentSteps] {
+    extends VertexSrv[Attachment, AttachmentSteps]
+    with StreamUtils {
 
   lazy val logger = Logger(s"${getClass.getName}")
 
@@ -59,7 +60,7 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
       chunk: (Int, Array[Byte])
   )(implicit graph: Graph): Try[Unit] = {
     val (pos, data) = chunk
-    val id          = s"${attachment._id}_$pos"
+    val id          = chunkId(attachment, pos)
     storageSrv.saveBinary(id, data)
   }
 
@@ -72,6 +73,24 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
     // TODO handle Storage data removal
     Try(get(attachment).remove())
 
+  /**
+    * Gets a chunked attachment if fully uploaded
+    * @param attachment the payload to retrieve
+    * @throws UnsupportedOperationException if collection of InputStreams is empty
+    * @return
+    */
+  def streamChunks(attachment: Attachment with Entity): InputStream = {
+    val l = for {
+      totalChunks     <- attachment.totalChunks.toSeq
+      remainingChunks <- attachment.remainingChunks.toSeq
+      chunkPos        <- 1 to totalChunks
+      if remainingChunks <= 0
+    } yield storageSrv.loadBinary(chunkId(attachment, chunkPos))
+
+    l.reduceLeft(_ ++ _)
+  }
+
+  def chunkId(attachment: Attachment with Entity, position: Int) = s"${attachment._id}_$position"
 }
 
 @EntitySteps[Attachment]
