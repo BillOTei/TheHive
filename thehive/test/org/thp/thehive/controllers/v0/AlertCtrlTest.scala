@@ -76,7 +76,7 @@ class AlertCtrlTest extends PlaySpecification with Mockito {
           InputObservable(dataType = "ip", data = Seq("127.0.0.1"), message = Some("localhost"), tlp = Some(1), tags = Set("here")),
           InputObservable(
             dataType = "file",
-            data = Seq("hello.txt;text/plain;aGVsbG8gd29ybGQgIQ=="),
+            data = Seq("bye.txt;text/plain;bGVsbG8gd84ybGQgIQ=="),
             message = Some("coucou"),
             tlp = Some(1),
             tags = Set("welcome", "message")
@@ -88,15 +88,15 @@ class AlertCtrlTest extends PlaySpecification with Mockito {
           dataType = "file",
           attachment = Some(
             OutputAttachment(
-              "hello.txt",
+              "bye.txt",
               Seq(
-                "a4bf1f6be616bf6a0de2ff6264de43a64bb768d38c783ec2bc74b5d4dcf5f889",
-                "b1fda0e52e8099d2aeb80f57bb91548cace3093f",
-                "905138a85e85e74344e90d25dba7299e"
+                "807a7624d1c102c7e59b550b79e015375c0281ab4d3c5869aa9c095b7bdc1738",
+                "813ccaed59052b1c17291544d6f7996027d1e401",
+                "2470e9079d265e65a13ae762583cb787"
               ),
               13,
               "text/plain",
-              "a4bf1f6be616bf6a0de2ff6264de43a64bb768d38c783ec2bc74b5d4dcf5f889"
+              "807a7624d1c102c7e59b550b79e015375c0281ab4d3c5869aa9c095b7bdc1738"
             )
           ),
           message = Some("coucou"),

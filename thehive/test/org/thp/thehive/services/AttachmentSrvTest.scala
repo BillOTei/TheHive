@@ -46,7 +46,7 @@ class AttachmentSrvTest extends PlaySpecification with StreamUtils {
 
         db.tryTransaction(
           implicit graph =>
-            attachmentSrv.create(Attachment("test", Files.size(filePath), "application/octet-stream", Nil, "", Some(totalChunks), Some(totalChunks)))
+            attachmentSrv.create(Attachment("test", Files.size(filePath), "application/octet-stream", Nil, "test", Some(totalChunks), Some(totalChunks)))
         ) must beSuccessfulTry.which(attachment => {
           Result.foreach(1 to totalChunks) { i =>
             db.tryTransaction { implicit graph =>

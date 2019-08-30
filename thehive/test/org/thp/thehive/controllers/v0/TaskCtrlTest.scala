@@ -218,7 +218,7 @@ class TaskCtrlTest extends PlaySpecification with Mockito {
                                },
                                {
                                   "_not":{
-                                     "status":"Cancel"
+                                     "status":"InProgress"
                                   }
                                }
                             ]
