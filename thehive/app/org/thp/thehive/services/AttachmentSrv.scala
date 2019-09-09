@@ -83,10 +83,10 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
     */
   def streamChunks(attachment: Attachment with Entity): InputStream = {
     val l = for {
-      totalChunks     <- attachment.totalChunks.toSeq
-      remainingChunks <- attachment.remainingChunks.toSeq
-      chunkPos        <- 1 to totalChunks
+      remainingChunks <- attachment.remainingChunks.toStream
       if remainingChunks <= 0
+      totalChunks <- attachment.totalChunks.toStream
+      chunkPos    <- (1 to totalChunks).toStream
     } yield storageSrv.loadBinary(chunkId(attachment, chunkPos))
 
     l.reduceLeft(_ ++ _)
