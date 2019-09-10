@@ -132,7 +132,7 @@ class ActionSrvTest extends PlaySpecification with Mockito {
                 "status"      -> "Success",
                 "message"     -> "Success",
                 "data"        -> "testObservable",
-                "dataType"    -> "mail_subject",
+                "dataType"    -> "mail-subject",
                 "dataMessage" -> "test observable from action"
               )
             )
@@ -270,3 +270,18 @@ class ActionSrvTest extends PlaySpecification with Mockito {
     } finally dataSource.close()
   }
 }
+
+
+/*
+List(
+{"data":"testObservable","dataType":"mail_subject","dataMessage":"test observable from action","message":"ObservableType mail_subject not found","type":"AddArtifactToCase","status":"Failure"},
+{"description":"yop !","title":"task created by action","message":"Success","type":"CreateTask","status":"Success"},
+{"name":"boolean1","tpe":"boolean","message":"Success","type":"AddCustomFields","value":"false","status":"Success"},
+{"name":"date1","tpe":"date","message":"Success","type":"AddCustomFields","value":"1562157321892","status":"Success"},
+{"name":"float1","tpe":"float","message":"Success","type":"AddCustomFields","value":"15.54","status":"Success"},
+{"owner":"user2","message":"Success","type":"AssignCase","status":"Success"},
+{"tag":"mail sent","message":"Success","type":"AddTagToCase","status":"Success"})
+
+{"type":"AddArtifactToCase","status":"Success","message":"Success","data":"testObservable","dataType":"mail_subject","dataMessage":"test observable from action"}
+{"data":"testObservable","dataType":"mail_subject","dataMessage":"test observable from action","message":"ObservableType mail_subject not found","type":"AddArtifactToCase","status":"Failure"}
+ */
