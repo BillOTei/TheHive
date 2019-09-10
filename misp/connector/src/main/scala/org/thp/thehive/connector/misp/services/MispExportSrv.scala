@@ -28,7 +28,7 @@ class MispExportSrv @Inject()(
 
   lazy val logger = Logger(getClass)
 
-  def observableToAttribute(observable: RichObservable): Option[Attribute] =
+  def observableToAttribute(observable: RichObservable)(implicit graph: Graph): Option[Attribute] =
     connector
       .attributeConverter(observable.`type`)
       .map {
