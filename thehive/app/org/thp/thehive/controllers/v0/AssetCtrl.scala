@@ -2,6 +2,7 @@ package org.thp.thehive.controllers.v0
 
 import java.nio.file.Files
 
+import akka.stream.scaladsl.StreamConverters
 import gremlin.scala.{Key, P}
 import javax.inject.{Inject, Singleton}
 import org.thp.scalligraph.controllers.{EntryPoint, FFile, FieldsParser}
@@ -9,8 +10,9 @@ import org.thp.scalligraph.models.Database
 import org.thp.thehive.dto.v0.InputChunkedAsset
 import org.thp.thehive.services.AttachmentSrv
 import play.api.Logger
+import play.api.http.HttpEntity
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Results}
+import play.api.mvc._
 
 import scala.util.Success
 
@@ -49,6 +51,19 @@ class AssetCtrl @Inject()(
                 Results.Ok
               } else Results.PartialContent
             }
+        )
+      }
+
+  def getAttachment(attachmentId: String): Action[AnyContent] =
+    entryPoint("get attachment")
+      .authRoTransaction(db) { implicit request => implicit graph =>
+        for {
+          attachment <- attachmentSrv.get(attachmentId).getOrFail()
+          is         <- attachmentSrv.streamChunks(attachment)
+          s = StreamConverters.fromInputStream(() => is)
+        } yield Result(
+          header = ResponseHeader(200, Map.empty),
+          body = HttpEntity.Streamed(s, Some(attachment.size), Some(attachment.contentType))
         )
       }
 

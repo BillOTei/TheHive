@@ -78,10 +78,12 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
   /**
     * Gets a chunked attachment if fully uploaded
     * @param attachment the payload to retrieve
-    * @throws UnsupportedOperationException if collection of InputStreams is empty
     * @return
     */
-  def streamChunks(attachment: Attachment with Entity): InputStream = {
+  def streamChunks(attachment: Attachment with Entity): Try[InputStream] = {
+    if (attachment.remainingChunks.isDefined && attachment.remainingChunks.get > 0)
+      logger.warn(s"Trying to fetch a non fully uploaded attachment $attachment")
+
     val l = for {
       remainingChunks <- attachment.remainingChunks.toStream
       if remainingChunks <= 0
@@ -89,7 +91,7 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
       chunkPos    <- (1 to totalChunks).toStream
     } yield storageSrv.loadBinary(chunkId(attachment, chunkPos))
 
-    l.reduceLeft(_ ++ _)
+    Try(l.reduceLeft(_ ++ _))
   }
 
   def chunkId(attachment: Attachment with Entity, position: Int) = s"${attachment.attachmentId}_$position"

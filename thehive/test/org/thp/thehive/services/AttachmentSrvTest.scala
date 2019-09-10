@@ -3,6 +3,7 @@ package org.thp.thehive.services
 import java.io.InputStream
 import java.nio.file.{Files, Paths}
 
+import org.apache.commons.io.IOUtils
 import org.specs2.execute.Result
 import org.specs2.specification.core.{Fragment, Fragments}
 import org.thp.scalligraph.AppBuilder
@@ -41,6 +42,7 @@ class AttachmentSrvTest extends PlaySpecification with StreamUtils {
         val filePath    = if (Files.exists(f1)) f1 else f2
         val totalChunks = 10
         val is = (for (i <- 1 to totalChunks) yield i)
+          .toStream
           .map(_ => Files.newInputStream(filePath))
           .reduceLeft(_ ++ _)
 
@@ -59,18 +61,18 @@ class AttachmentSrvTest extends PlaySpecification with StreamUtils {
           } must beSuccessfulTry.which(updatedAttachment => {
             val finalStream = attachmentSrv.streamChunks(updatedAttachment)
 
-            streamCompare(finalStream, is) must beTrue
+            finalStream must beSuccessfulTry.which(fs => IOUtils.contentEquals(is, fs) must beTrue)
+          })
+
+          db.tryTransaction { implicit graph =>
+            attachmentSrv.get(attachment).update("remainingChunks" -> Some(1))
+          } must beSuccessfulTry.which(badAttachment => {
+            val badStream = attachmentSrv.streamChunks(badAttachment)
+
+            badStream must beFailedTry
           })
         })
       }
     }
-  }
-
-  @tailrec
-  private def streamCompare(is1: InputStream, is2: InputStream): Boolean = {
-    val n1 = is1.read()
-    val n2 = is2.read()
-    if (n1 == -1 || n2 == -1) n1 == n2
-    else (n1 == n2) && streamCompare(is1, is2)
   }
 }
