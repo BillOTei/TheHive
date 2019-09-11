@@ -6,7 +6,7 @@ import java.nio.file.Files
 import akka.stream.IOResult
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
-import gremlin.scala.{Graph, GremlinScala, Vertex}
+import gremlin.scala.{Graph, GremlinScala, Key, Vertex}
 import javax.inject.{Inject, Singleton}
 import org.thp.scalligraph.EntitySteps
 import org.thp.scalligraph.auth.AuthContext
@@ -100,4 +100,13 @@ class AttachmentSrv @Inject()(configuration: Configuration, storageSrv: StorageS
 @EntitySteps[Attachment]
 class AttachmentSteps(raw: GremlinScala[Vertex])(implicit db: Database, graph: Graph) extends BaseVertexSteps[Attachment, AttachmentSteps](raw) {
   override def newInstance(raw: GremlinScala[Vertex]): AttachmentSteps = new AttachmentSteps(raw)
+
+  def get(id: String): AttachmentSteps = newInstance(
+    raw.filter(
+      _.or(
+        _.has(Key("attachmentId") of id),
+        _.has(Key("_id") of id)
+      )
+    )
+  )
 }

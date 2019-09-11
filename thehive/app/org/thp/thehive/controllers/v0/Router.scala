@@ -31,8 +31,9 @@ class Router @Inject()(
 
   override def routes: Routes = {
 
-    case GET(p"/upload-chunks")  => assetCtrl.getChunk
-    case POST(p"/upload-chunks") => assetCtrl.uploadChunk
+    case GET(p"/attachment/$attachmentId") => assetCtrl.getAttachment(attachmentId)
+    case GET(p"/upload-chunks")            => assetCtrl.getChunk
+    case POST(p"/upload-chunks")           => assetCtrl.uploadChunk
 
     case GET(p"/status") => statusCtrl.get
     case GET(p"/health") => statusCtrl.health

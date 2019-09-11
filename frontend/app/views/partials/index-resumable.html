@@ -76,6 +76,13 @@
                         >
                             Retry
                         </a>
+                        <a
+                            class="btn btn-mini btn-default"
+                            ng-click="download(file)"
+                            ng-show="file.isComplete()"
+                        >
+                            Download
+                        </a>
                     </div>
                 </td>
             </tr>

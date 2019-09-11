@@ -58,11 +58,14 @@ class AssetCtrl @Inject()(
     entryPoint("get attachment")
       .authRoTransaction(db) { implicit request => implicit graph =>
         for {
-          attachment <- attachmentSrv.get(attachmentId).getOrFail()
+          attachment <- attachmentSrv
+            .initSteps
+            .get(attachmentId)
+            .getOrFail()
           is         <- attachmentSrv.streamChunks(attachment)
           s = StreamConverters.fromInputStream(() => is)
         } yield Result(
-          header = ResponseHeader(200, Map.empty),
+          header = ResponseHeader(200, Map("x-filename" -> attachment.name)),
           body = HttpEntity.Streamed(s, Some(attachment.size), Some(attachment.contentType))
         )
       }
@@ -74,6 +77,7 @@ class AssetCtrl @Inject()(
       .auth { implicit request =>
         val inputChunkedAsset: InputChunkedAsset = request.body("chunk")
         val dataChunk: FFile                     = request.body("data")
+        val attach = fromInputChunkedAsset(inputChunkedAsset).copy(contentType = dataChunk.contentType)
 
         for {
           attachment <- db.tryTransaction(
@@ -82,7 +86,7 @@ class AssetCtrl @Inject()(
                 .initSteps
                 .has(Key("attachmentId"), P.eq(inputChunkedAsset.flowIdentifier))
                 .getOrFail()
-                .orElse(attachmentSrv.create(inputChunkedAsset))
+                .orElse(attachmentSrv.create(attach))
           )
           _ <- db.tryTransaction(
             implicit graph => attachmentSrv.createChunk(attachment, (inputChunkedAsset.flowChunkNumber, Files.readAllBytes(dataChunk.filepath)))
