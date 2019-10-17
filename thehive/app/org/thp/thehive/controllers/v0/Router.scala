@@ -36,7 +36,6 @@ class Router @Inject()(
     case GET(p"/health") => statusCtrl.health
     case GET(p"/logout") => authenticationCtrl.logout
     case POST(p"/login") => authenticationCtrl.login
-//    case POST(p"/ssoLogin") => authenticationCtrl.ssoLogin
 
     case POST(p"/case/$id/shares")                => shareCtrl.shareCase(id)
     case DELETE(p"/case/shares")                  => shareCtrl.removeShares()

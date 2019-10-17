@@ -2,11 +2,9 @@ package org.thp.thehive.controllers.v0
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
-
 import play.api.mvc.{Action, AnyContent, Results}
-
 import javax.inject.{Inject, Singleton}
-import org.thp.scalligraph.AuthorizationError
+import org.thp.scalligraph.{AuthorizationError, OAuth2Redirect}
 import org.thp.scalligraph.auth.{AuthSrv, RequestOrganisation}
 import org.thp.scalligraph.controllers.{EntryPoint, FieldsParser}
 import org.thp.scalligraph.models.Database
