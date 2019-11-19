@@ -107,6 +107,30 @@ object Conversion {
       .transform
   )
 
+  implicit val chunkAssetOutput: Outputer.Aux[Attachment with Entity, OutputChunkedAsset] = Outputer[Attachment with Entity, OutputChunkedAsset](
+    _.into[OutputChunkedAsset]
+      .withFieldComputed(_.flowIdentifier, _.attachmentId)
+      .withFieldComputed(_.flowFilename, _.name)
+      .withFieldComputed(_.flowRemainingChunks, _.remainingChunks.getOrElse(-999))
+      .withFieldComputed(_.flowTotalChunks, _.totalChunks.getOrElse(-999))
+      .transform
+  )
+
+  implicit class ChunkAssetOps(inputChunkedAsset: InputChunkedAsset) {
+
+    def toAttachment: Attachment =
+      inputChunkedAsset
+        .into[Attachment]
+        .withFieldComputed(_.name, _.flowFilename)
+        .withFieldComputed(_.attachmentId, _.flowIdentifier)
+        .withFieldConst(_.contentType, "application/octet-stream")
+        .withFieldComputed(_.size, _.flowTotalSize)
+        .withFieldConst(_.hashes, Nil)
+        .withFieldConst(_.remainingChunks, None)
+        .withFieldComputed(_.totalChunks, i => Some(i.flowTotalChunks))
+        .transform
+  }
+
   implicit val auditOutput: Outputer.Aux[RichAudit, OutputAudit] = Outputer[RichAudit, OutputAudit](
     _.into[OutputAudit]
       .withFieldComputed(_.operation, a => actionToOperation(a.action))
@@ -299,7 +323,7 @@ object Conversion {
         .withFieldComputed(_.startDate, _._createdAt)
         .withFieldComputed(_.owner, _._createdBy)
         .withFieldComputed(_.status, l => if (l.deleted) "Deleted" else "Ok")
-        .withFieldComputed(_.attachment, _.attachments.headOption.map(_.toOutput))
+        .withFieldComputed(_.attachment, _.attachments.headOption.map(a => attachmentOutput.toOutput(a).toOutput))
         .transform
   )
 
@@ -337,7 +361,7 @@ object Conversion {
       .withFieldComputed(_.startDate, _.observable._createdAt)
       .withFieldComputed(_.tags, _.tags.map(_.toString).toSet)
       .withFieldComputed(_.data, _.data.map(_.data))
-      .withFieldComputed(_.attachment, _.attachment.map(_.toOutput))
+      .withFieldComputed(_.attachment, _.attachment.map(a => attachmentOutput.toOutput(a).toOutput))
       .withFieldConst(_.stats, JsObject.empty)
       .transform
   )
@@ -359,7 +383,7 @@ object Conversion {
           .withFieldComputed(_.startDate, _.observable._createdAt)
           .withFieldComputed(_.tags, _.tags.map(_.toString).toSet)
           .withFieldComputed(_.data, _.data.map(_.data))
-          .withFieldComputed(_.attachment, _.attachment.map(_.toOutput))
+          .withFieldComputed(_.attachment, _.attachment.map(a => attachmentOutput.toOutput(a).toOutput))
           .withFieldConst(_.stats, richObservableWithStats._2)
           .transform
     )

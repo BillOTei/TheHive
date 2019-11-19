@@ -34,7 +34,8 @@ angular.module('thehive', [
     'theHiveServices',
     'theHiveFilters',
     'theHiveDirectives',
-    'theHiveComponents'
+    'theHiveComponents',
+    'flow'
     ])
     .config(function($resourceProvider) {
         'use strict';
@@ -183,6 +184,11 @@ angular.module('thehive', [
                         return VersionSrv.get();
                     }
                 }
+            })
+            .state('app.resumable', {
+                url: 'resumable',
+                templateUrl: 'views/partials/index-resumable.html',
+                controller: 'ResumableCtrl'
             })
             .state('app.administration', {
                 abstract: true,

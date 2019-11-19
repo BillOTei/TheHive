@@ -4,4 +4,12 @@ import org.thp.scalligraph.VertexEntity
 import org.thp.scalligraph.utils.Hash
 
 @VertexEntity
-case class Attachment(name: String, size: Long, contentType: String, hashes: Seq[Hash], attachmentId: String)
+case class Attachment(
+    name: String,
+    size: Long,
+    contentType: String,
+    hashes: Seq[Hash],
+    attachmentId: String,
+    remainingChunks: Option[Int] = None,
+    totalChunks: Option[Int] = None
+)
